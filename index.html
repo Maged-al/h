@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#083b4c" />
+  <title>مرصد الملاريا | الوضع الوبائي</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand"><span class="brand-mark">✦</span><div><strong>مرصد الملاريا</strong><small>دراسة الوضع الوبائي</small></div></div>
+    <div class="header-actions"><span id="dataStatus" class="status idle">بانتظار البيانات</span><button id="printBtn" class="btn ghost" type="button">طباعة التقرير</button></div>
+  </header>
+
+  <main>
+    <section id="uploadPanel" class="upload-panel">
+      <div class="upload-copy"><p class="eyebrow">HESN • 2025</p><h1>لوحة متابعة حالات الملاريا</h1><p>ارفع ملف التحقيقات بصيغة Excel لتُنشأ قراءة وبائية تفاعلية فورًا. تتم معالجة الملف داخل المتصفح ولا يُرفع إلى أي خادم.</p></div>
+      <label class="dropzone" id="dropzone" for="fileInput"><input id="fileInput" type="file" accept=".xlsx,.xls" hidden><span class="upload-icon">↑</span><strong>اختر ملف الإكسل</strong><small>أو اسحب الملف وأفلته هنا</small></label>
+    </section>
+
+    <section id="dashboard" hidden>
+      <div class="dashboard-heading"><div><p class="eyebrow">المؤشرات الوبائية</p><h1>ملخص الوضع الحالي</h1><p id="dataInfo">—</p></div><button id="replaceFile" type="button" class="btn primary">تحديث البيانات</button></div>
+
+      <section class="filters" aria-label="مرشحات البيانات">
+        <label>الفترة الزمنية <select id="monthFilter"><option value="all">كل الأشهر</option></select></label>
+        <label>المنشأة المبلغة <select id="facilityFilter"><option value="all">كل المنشآت</option></select></label>
+        <label>تصنيف الملاريا <select id="classificationFilter"><option value="all">كل التصنيفات</option></select></label>
+        <button id="clearFilters" type="button" class="btn text">مسح المرشحات</button>
+      </section>
+
+      <section class="kpis" aria-label="المؤشرات الرئيسية">
+        <article class="kpi total"><span>إجمالي الحالات</span><strong id="totalCases">—</strong><small id="totalCaption">الحالات المسجلة</small></article>
+        <article class="kpi severe"><span>الملاريا الخبيثة</span><strong id="severeCases">—</strong><small id="severeCaption">من إجمالي الحالات</small></article>
+        <article class="kpi benign"><span>الملاريا الحميدة</span><strong id="benignCases">—</strong><small id="benignCaption">من إجمالي الحالات</small></article>
+        <article class="kpi alert"><span>آخر تسجيل</span><strong id="latestDate">—</strong><small>وفق تاريخ إنشاء التحقيق</small></article>
+      </section>
+
+      <section class="grid two-up">
+        <article class="card"><div class="card-head"><div><h2>الاتجاه الزمني للحالات</h2><p>عدد الحالات حسب الشهر</p></div></div><div class="chart-wrap"><canvas id="trendChart"></canvas></div></article>
+        <article class="card"><div class="card-head"><div><h2>التوزيع حسب التصنيف</h2><p>الأنماط المسجلة</p></div></div><div class="chart-wrap doughnut"><canvas id="classificationChart"></canvas></div></article>
+      </section>
+      <section class="grid two-up">
+        <article class="card"><div class="card-head"><div><h2>المنشآت الأكثر تسجيلًا</h2><p>أعلى 8 منشآت مبلغة</p></div></div><div class="chart-wrap"><canvas id="facilityChart"></canvas></div></article>
+        <article class="card"><div class="card-head"><div><h2>الخصائص الديموغرافية</h2><p>فئات العمر والجنس</p></div><div class="segmented"><button class="active" data-demo="age">العمر</button><button data-demo="gender">الجنس</button></div></div><div class="chart-wrap"><canvas id="demographicChart"></canvas></div></article>
+      </section>
+      <section class="grid two-up">
+        <article class="card"><div class="card-head"><div><h2>أكثر الجنسيات تسجيلًا</h2><p>أعلى 10 جنسيات</p></div></div><div class="chart-wrap"><canvas id="nationalityChart"></canvas></div></article>
+        <article class="card insight"><p class="eyebrow">قراءة سريعة</p><h2>ملخص وبائي</h2><div id="insights" class="insights">سيظهر الملخص التحليلي هنا بعد تحميل البيانات.</div><p class="note">هذه قراءة وصفية تدعم اتخاذ القرار ولا تغني عن التحقق الوبائي الميداني.</p></article>
+      </section>
+
+      <section class="card table-card"><div class="card-head"><div><h2>سجل الحالات</h2><p id="tableCount">—</p></div><input id="searchInput" type="search" placeholder="بحث بمنشأة أو جنسية أو رقم تحقيق"></div><div class="table-scroll"><table><thead><tr><th>تاريخ التسجيل</th><th>رقم التحقيق</th><th>التصنيف</th><th>المنشأة المبلغة</th><th>العمر</th><th>الجنس</th><th>الجنسية</th><th>الحالة</th></tr></thead><tbody id="caseTable"></tbody></table></div><div class="table-footer"><span id="paginationInfo"></span><div><button class="btn ghost" id="previousPage">السابق</button><button class="btn ghost" id="nextPage">التالي</button></div></div></section>
+    </section>
+  </main>
+  <footer>مرصد الملاريا • مصدر البيانات: نظام HESN • المعالجة محلية على جهازك</footer>
+  <script src="vendor/xlsx.full.min.js"></script>
+  <script src="vendor/chart.umd.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
