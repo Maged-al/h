@@ -9,6 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css" />
+  <style>.compact-upload{min-height:0;margin-top:18px;padding:18px 24px;display:flex;align-items:center;gap:20px}.compact-upload .upload-copy{display:none}.compact-upload .upload-actions{display:flex;align-items:center;gap:12px;flex:1}.compact-upload .dropzone{min-height:70px;flex:1;flex-direction:row}.compact-upload .upload-icon,.compact-upload .dropzone small{display:none}.filter-menu{position:relative;min-width:185px}.filter-menu>button{width:100%;text-align:right;font:inherit;color:#12313d;background:#fff;border:1px solid #dce5e3;border-radius:7px;padding:9px;cursor:pointer}.filter-menu>button:after{content:'⌄';float:left;color:#087e7b}.checkbox-list{display:none;position:absolute;z-index:5;top:calc(100% + 5px);right:0;width:255px;max-height:260px;overflow:auto;padding:8px;background:#fff;border:1px solid #dce5e3;border-radius:10px;box-shadow:0 12px 28px #173d4020}.filter-menu.open .checkbox-list{display:grid;gap:5px}.checkbox-list label{display:flex;align-items:center;gap:8px;color:#12313d;font-size:13px;padding:5px}.checkbox-list input{accent-color:#087e7b}@media print{@page{size:A4 portrait;margin:6mm}body{zoom:.62;background:#fff}.topbar{height:44px}.topbar .header-actions .btn,.compact-upload,.filters,.table-card,footer,.note{display:none!important}main{padding:5px}.dashboard-heading{margin:4px 0}.dashboard-heading h1{font-size:22px}.kpis{gap:6px;margin-bottom:6px}.kpi{padding:8px}.kpi strong{font-size:22px}.grid{gap:6px;margin-bottom:6px}.card{padding:8px}.chart-wrap{height:115px;margin-top:4px}.card h2{font-size:13px}.insight{font-size:10px}.insights{line-height:1.45;margin-top:6px}}</style>
 </head>
 <body>
   <header class="topbar">
@@ -19,23 +20,25 @@
   <main>
     <section id="uploadPanel" class="upload-panel">
       <div class="upload-copy"><p class="eyebrow">HESN • 2025</p><h1>لوحة متابعة حالات الملاريا</h1><p>ارفع ملف التحقيقات بصيغة Excel لتُنشأ قراءة وبائية تفاعلية فورًا. تتم معالجة الملف داخل المتصفح ولا يُرفع إلى أي خادم.</p></div>
-      <label class="dropzone" id="dropzone" for="fileInput"><input id="fileInput" type="file" accept=".xlsx,.xls" hidden><span class="upload-icon">↑</span><strong>اختر ملف الإكسل</strong><small>أو اسحب الملف وأفلته هنا</small></label>
+      <div class="upload-actions"><label class="dropzone" id="dropzone" for="fileInput"><input id="fileInput" type="file" accept=".xlsx,.xls" hidden><span class="upload-icon">↑</span><strong>اختر ملف الإكسل</strong><small>أو اسحب الملف وأفلته هنا</small></label><button id="loadBundled" class="btn ghost" type="button">تحميل ملف البيانات الموجود بالمجلد</button><p id="uploadMessage" role="status">جارٍ تهيئة قارئ البيانات…</p><p id="jsError" role="alert"></p></div>
     </section>
 
     <section id="dashboard" hidden>
-      <div class="dashboard-heading"><div><p class="eyebrow">المؤشرات الوبائية</p><h1>ملخص الوضع الحالي</h1><p id="dataInfo">—</p></div><button id="replaceFile" type="button" class="btn primary">تحديث البيانات</button></div>
+      <div class="dashboard-heading"><div><p class="eyebrow">المؤشرات الوبائية</p><h1>ملخص الوضع الوبائي للملاريا</h1><p id="dataInfo"></p></div><button id="replaceFile" type="button" class="btn primary">تحديث البيانات</button></div>
 
       <section class="filters" aria-label="مرشحات البيانات">
-        <label>الفترة الزمنية <select id="monthFilter"><option value="all">كل الأشهر</option></select></label>
-        <label>المنشأة المبلغة <select id="facilityFilter"><option value="all">كل المنشآت</option></select></label>
-        <label>تصنيف الملاريا <select id="classificationFilter"><option value="all">كل التصنيفات</option></select></label>
+        <div class="filter-menu"><button type="button" data-menu="monthFilter">الفترة الزمنية</button><div id="monthFilter" class="checkbox-list"></div></div>
+        <div class="filter-menu"><button type="button" data-menu="facilityFilter">المنشأة المبلغة</button><div id="facilityFilter" class="checkbox-list"></div></div>
+        <div class="filter-menu"><button type="button" data-menu="classificationFilter">تصنيف الملاريا</button><div id="classificationFilter" class="checkbox-list"></div></div>
+        <div class="filter-menu"><button type="button" data-menu="nationalityFilter">الجنسية</button><div id="nationalityFilter" class="checkbox-list"></div></div>
+        <span class="multi-note">اختر عاملًا واحدًا أو عدة عوامل من كل قائمة.</span>
         <button id="clearFilters" type="button" class="btn text">مسح المرشحات</button>
       </section>
 
       <section class="kpis" aria-label="المؤشرات الرئيسية">
         <article class="kpi total"><span>إجمالي الحالات</span><strong id="totalCases">—</strong><small id="totalCaption">الحالات المسجلة</small></article>
-        <article class="kpi severe"><span>الملاريا الخبيثة</span><strong id="severeCases">—</strong><small id="severeCaption">من إجمالي الحالات</small></article>
-        <article class="kpi benign"><span>الملاريا الحميدة</span><strong id="benignCases">—</strong><small id="benignCaption">من إجمالي الحالات</small></article>
+        <article class="kpi severe"><span>Falciparum</span><strong id="severeCases">—</strong><small id="severeCaption">من إجمالي الحالات</small></article>
+        <article class="kpi benign"><span>Vivax</span><strong id="benignCases">—</strong><small id="benignCaption">من إجمالي الحالات</small></article>
         <article class="kpi alert"><span>آخر تسجيل</span><strong id="latestDate">—</strong><small>وفق تاريخ إنشاء التحقيق</small></article>
       </section>
 
@@ -44,7 +47,7 @@
         <article class="card"><div class="card-head"><div><h2>التوزيع حسب التصنيف</h2><p>الأنماط المسجلة</p></div></div><div class="chart-wrap doughnut"><canvas id="classificationChart"></canvas></div></article>
       </section>
       <section class="grid two-up">
-        <article class="card"><div class="card-head"><div><h2>المنشآت الأكثر تسجيلًا</h2><p>أعلى 8 منشآت مبلغة</p></div></div><div class="chart-wrap"><canvas id="facilityChart"></canvas></div></article>
+        <article class="card"><div class="card-head"><div><h2>المنشآت الأكثر تسجيلًا</h2><p>أعلى 10 منشآت مبلغة</p></div></div><div class="chart-wrap"><canvas id="facilityChart"></canvas></div></article>
         <article class="card"><div class="card-head"><div><h2>الخصائص الديموغرافية</h2><p>فئات العمر والجنس</p></div><div class="segmented"><button class="active" data-demo="age">العمر</button><button data-demo="gender">الجنس</button></div></div><div class="chart-wrap"><canvas id="demographicChart"></canvas></div></article>
       </section>
       <section class="grid two-up">
@@ -56,8 +59,9 @@
     </section>
   </main>
   <footer>مرصد الملاريا • مصدر البيانات: نظام HESN • المعالجة محلية على جهازك</footer>
-  <script src="vendor/xlsx.full.min.js"></script>
-  <script src="vendor/chart.umd.min.js"></script>
-  <script src="app.js"></script>
+  <script>window.addEventListener('error',function(e){var box=document.getElementById('jsError');if(box)box.textContent='خطأ تشغيلي: '+e.message;});</script>
+  <script src="vendor/xlsx.full.min.js?v=1"></script>
+  <script src="vendor/chart.umd.min.js?v=1"></script>
+  <script src="app.js?v=9"></script>
 </body>
 </html>
